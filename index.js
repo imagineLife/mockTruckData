@@ -11,6 +11,10 @@ const makeRandomID = () => {
   return `${resLetters}-${resNums}`;
 }
 
+const makeRandomProduct = () => {
+	let products = ['YC', 'SB', 'WH'];
+	console.log( Math.round(Math.random() * (products.length - 1)) )
+}
 	/*
 		SAME truck NEEDS to be in Each location
 		location.forEach(makeThisTruckVisitThere)
@@ -59,4 +63,4 @@ const makeTrucks = (count, o) => {
 	}
 }
 
-console.log(makeRandomID());
+makeRandomProduct();
