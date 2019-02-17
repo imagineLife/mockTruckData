@@ -60,7 +60,7 @@ const makeRandomBushelCount = (minMaxArr) => {
 
 	//BUSHELS - between 1350 && 1440
 
-const makeTrucks = (count) => {
+const makeTruckObjs = (count) => {
 	let resArr = []
 	for(let i = 1; i <= count; i++){
 		let thisTruck = {
@@ -75,5 +75,5 @@ const makeTrucks = (count) => {
 }
 
 
-console.log(makeTrucks(30))
+console.log(makeTruckObjs(30))
 let dummyTrucks = makeTrucks(3)
