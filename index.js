@@ -69,23 +69,31 @@ const randomDuration = {
 	a startTime
 */
 const sendThroughFacilities = (truckObj, facilitiesArr, startTime) => {
-	
-	console.log('facilitiesArr')
-	console.log(facilitiesArr)
-	
-	let parsedStart = parseDateHour(startTime)
+	console.log('** ** ** ** ');
+	console.log('** ** SEND TRHOUGH FACILITY** ** ');
+	console.log('** ** ** ** ');
+
+	let parsedStartString = parseDateHour(startTime)
 	
 	//time-keeper placeholders
-	//faciity is open
-	let curTime = parsedStart;
+	//time the facility will be open
+	let parsedStarTime = parsedStartString;
 
 	//
-	let nextFacilityStartTime = null;
+	let thisTruckNextFacilityStartTime = null;
 
 	//for each facility, make an obj
 	let facilitesRes = facilitiesArr.map((facility, ind) => {
 		
-		//random facility duration
+		//check if facility was used prior
+		// this should be true for EVERY truck after the first truck, as the facility will have been used
+		let wasTruckInThisFacilityPrior = (facilityOpenTimes[facility]) ? true : false;
+		
+		//decide to START facility-process from parameter startstring
+		// OR from available facility start time
+		parsedStarTime = (wasTruckInThisFacilityPrior) ? facilityOpenTimes[facility] : parsedStarTime;
+		
+		//random facility visit duration
 		let thisFacilityDuration = randomDuration[facility];
 
 		//random travel time after this facility
@@ -94,8 +102,12 @@ const sendThroughFacilities = (truckObj, facilitiesArr, startTime) => {
 		// check for next available facility starting time
 		let curFacilityAvailableStartTime = (facilityOpenTimes[facility]) ? facilityOpenTimes[facility] : startTime;
 
-		let thisArrivalTime = (nextFacilityStartTime) ? nextFacilityStartTime : curTime
-
+		//set startTime
+		// if the facility was booked prior, start when facility will be open
+		// if facility was NOT booked, use calculated startTime from previous facility + random travel time
+		let thisArrivalTime = (wasTruckInThisFacilityPrior) ? facilityOpenTimes[facility] : 
+			(thisTruckNextFacilityStartTime) ? thisTruckNextFacilityStartTime : parsedStarTime
+		
 		//when truck leaves facility
 		let thisLeaveTime = addMinutes(thisArrivalTime, thisFacilityDuration)
 		
@@ -109,17 +121,20 @@ const sendThroughFacilities = (truckObj, facilitiesArr, startTime) => {
 		}
 
 		//calculate the time @ end of facility visit
-		let facilityEndTime = addMinutes(curTime, thisFacilityDuration)
+		let facilityEndTime = addMinutes(parsedStarTime, thisFacilityDuration)
 
 		//set the time this truck starts visit at next facility
-		nextFacilityStartTime = addMinutes(thisLeaveTime, thisRandomTravelTime);
+		thisTruckNextFacilityStartTime = addMinutes(thisLeaveTime, thisRandomTravelTime);
 		
-		//re-set the 'current time' that the facility is open
-		curTime = facilityEndTime
+		//re-set the 'available time' that the facility will be open
+		parsedStarTime = facilityEndTime;
+		
+		console.log('SETTING facility available time  -> thisLeaveTime')
+		console.log(thisLeaveTime)
 		
 		//set the facilit-open-time for this facility for the next truck in this facility to enter at
 		facilityOpenTimes[facility] = thisLeaveTime
-
+		
 		return thisFacilityObj;
 	})
 
@@ -176,10 +191,12 @@ let facilityOpenTimes = {};
 
 //dummy-truck-making example
 let truckObjs = makeTruckObjs(2);
-console.log(truckObjs)
-let truckWithFacilities = sendThroughFacilities(truckObjs[0], facilitiesArr, "Tuesday, July 9, 2018 7")
+// console.log(truckObjs)
+let truckWithFacilities = truckObjs.map(truckObj => {
+	return sendThroughFacilities(truckObj, facilitiesArr, "Tuesday, July 9, 2018 7")
+})
 
-console.log('truckWithFacilities')
+console.log('END: truckWithFacilities')
 console.log(truckWithFacilities)
 
 
