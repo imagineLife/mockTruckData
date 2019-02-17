@@ -24,11 +24,34 @@ const makeRandomBushelCount = (minMaxArr) => {
 	return Math.floor(Math.random()*(minMaxArr[1]-minMaxArr[0]+1)+minMaxArr[0]) 
 }
 
+//adds minutes to a starting time
 const addMinutes = (startDate, minutes) => {
 	//	d3 time function
 	//	https://github.com/d3/d3-time#interval_offset
     return d3.timeMinute.offset(startDate, minutes);
 }
+
+/*	A cumulative function, making a truck object returning : 
+		{
+			id: '',
+			product: '',
+			bushelCount: ''
+		}
+*/
+const makeTruckObjs = (count) => {
+	let resArr = []
+	for(let i = 1; i <= count; i++){
+		let thisTruck = {
+			id: makeRandomID(),
+			product: makeRandomProduct(),
+			bushelCount: makeRandomBushelCount([1350,1440])
+		}
+		resArr.push(thisTruck)
+	}
+
+	return resArr;
+}
+
 	/*
 		SAME truck NEEDS to be in Each location
 		location.forEach(makeThisTruckVisitThere)
@@ -64,24 +87,8 @@ const addMinutes = (startDate, minutes) => {
 
 	//BUSHELS - between 1350 && 1440
 
-const makeTruckObjs = (count) => {
-	let resArr = []
-	for(let i = 1; i <= count; i++){
-		let thisTruck = {
-			id: makeRandomID(),
-			product: makeRandomProduct(),
-			bushelCount: makeRandomBushelCount([1350,1440])
-		}
-		resArr.push(thisTruck)
-	}
-
-	return resArr;
-}
 
 date = d3.timeParse("%A, %B %-d, %Y %I")("Tuesday, July 9, 2018 7");
-console.log(date)
-console.log('// - - - - - //')
-
 console.log(addMinutes(date, 15))
 console.log('// - - - - - //')
 
