@@ -70,25 +70,56 @@ const randomDuration = {
 */
 const sendThroughFacilities = (truckObj, facilitiesArr, startTime) => {
 	
+	console.log('facilitiesArr')
+	console.log(facilitiesArr)
+	
 	let parsedStart = parseDateHour(startTime)
-	//time-keeper
+	
+	//time-keeper placeholders
+	//faciity is open
 	let curTime = parsedStart;
+
+	//
+	let nextFacilityStartTime = null;
 
 	//for each facility, make an obj
 	let facilitesRes = facilitiesArr.map((facility, ind) => {
 		
+		//random facility duration
 		let thisFacilityDuration = randomDuration[facility];
-		let thisRandomTravelTime = randomDuration['travel']
 
+		//random travel time after this facility
+		let thisRandomTravelTime = randomDuration['travel']
+		
+		// check for next available facility starting time
+		let curFacilityAvailableStartTime = (facilityOpenTimes[facility]) ? facilityOpenTimes[facility] : startTime;
+
+		let thisArrivalTime = (nextFacilityStartTime) ? nextFacilityStartTime : curTime
+
+		//when truck leaves facility
+		let thisLeaveTime = addMinutes(thisArrivalTime, thisFacilityDuration)
+		
+		//facility object
 		let thisFacilityObj = {
 			facility: facility,
-			arrival: curTime,
+			arrival: thisArrivalTime,
 			duration: thisFacilityDuration,
-			leaveTime: addMinutes(curTime, thisFacilityDuration),
-			travelTimeAfter: randomDuration['travel']
+			leaveTime: thisLeaveTime,
+			travelTimeAfter: thisRandomTravelTime
 		}
 
-		curTime = addMinutes(addMinutes(curTime, thisFacilityDuration), thisRandomTravelTime)
+		//calculate the time @ end of facility visit
+		let facilityEndTime = addMinutes(curTime, thisFacilityDuration)
+
+		//set the time this truck starts visit at next facility
+		nextFacilityStartTime = addMinutes(thisLeaveTime, thisRandomTravelTime);
+		
+		//re-set the 'current time' that the facility is open
+		curTime = facilityEndTime
+		
+		//set the facilit-open-time for this facility for the next truck in this facility to enter at
+		facilityOpenTimes[facility] = thisLeaveTime
+
 		return thisFacilityObj;
 	})
 
@@ -139,11 +170,14 @@ const sendThroughFacilities = (truckObj, facilitiesArr, startTime) => {
 // date = d3.timeParse("%A, %B %-d, %Y %I")("Tuesday, July 9, 2018 7");
 // console.log(addMinutes(date, 15))
 // console.log('// - - - - - //')
+let facilitiesArr = ['probe', 'entScale', 'dumpPit', 'extScale'] 
+
+let facilityOpenTimes = {};
 
 //dummy-truck-making example
-let truckObjs = makeTruckObjs(1);
+let truckObjs = makeTruckObjs(2);
 console.log(truckObjs)
-let truckWithFacilities = sendThroughFacilities(truckObjs[0], ['probe', 'entScale', 'dumpPit', 'extScale'], "Tuesday, July 9, 2018 7")
+let truckWithFacilities = sendThroughFacilities(truckObjs[0], facilitiesArr, "Tuesday, July 9, 2018 7")
 
 console.log('truckWithFacilities')
 console.log(truckWithFacilities)
