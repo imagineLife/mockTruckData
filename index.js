@@ -1,3 +1,5 @@
+const parseDateHour = d3.timeParse("%A, %B %-d, %Y %I")
+
 //generates a 3-Letter -dash- 3-Digit string (ABC-123, ZYX-987)
 const makeRandomID = () => {
   var resLetters = "", resNums = '';
@@ -20,7 +22,7 @@ const makeRandomProduct = () => {
 }
 
 //expects array of [minVal, maxVal]
-const makeRandomBushelCount = (minMaxArr) => {
+const getRandomNumber = (minMaxArr) => {
 	return Math.floor(Math.random()*(minMaxArr[1]-minMaxArr[0]+1)+minMaxArr[0]) 
 }
 
@@ -44,12 +46,54 @@ const makeTruckObjs = (count) => {
 		let thisTruck = {
 			id: makeRandomID(),
 			product: makeRandomProduct(),
-			bushelCount: makeRandomBushelCount([1350,1440])
+			bushelCount: getRandomNumber([1350,1440])
 		}
 		resArr.push(thisTruck)
 	}
 
 	return resArr;
+}
+
+const randomDuration = {
+	probe: getRandomNumber([2,6]),
+	entScale: getRandomNumber([4,9]),
+	dumpPit: getRandomNumber([10,18]),
+	extScale: getRandomNumber([4,9]),
+	travel: getRandomNumber([2,3])
+}
+
+/*
+	Send a truck 'through' facilities -> accepts 
+	a truck object
+	an arr of facility names
+	a startTime
+*/
+const sendThroughFacilities = (truckObj, facilitiesArr, startTime) => {
+	
+	let parsedStart = parseDateHour(startTime)
+	//time-keeper
+	let curTime = parsedStart;
+
+	//for each facility, make an obj
+	let facilitesRes = facilitiesArr.map((facility, ind) => {
+		
+		let thisFacilityDuration = randomDuration[facility];
+		let thisRandomTravelTime = randomDuration['travel']
+
+		let thisFacilityObj = {
+			facility: facility,
+			arrival: curTime,
+			duration: thisFacilityDuration,
+			leaveTime: addMinutes(curTime, thisFacilityDuration),
+			travelTimeAfter: randomDuration['travel']
+		}
+
+		curTime = addMinutes(addMinutes(curTime, thisFacilityDuration), thisRandomTravelTime)
+		return thisFacilityObj;
+	})
+
+	truckObj.facilities = facilitesRes;
+	return truckObj;
 }
 
 	/*
@@ -71,9 +115,12 @@ const makeTruckObjs = (count) => {
 
 			NEEDS
 			- Start time @ first facility (ex 7 am on a tuesday july 9 2018)
-			- duration in each facilities (random between 4-25?)
-			- travel time between first,second, & third facilities
-
+			- duration in each facilities
+				- probe: rndm 2 - 6 min
+				- entScale: rndm 4 - 9 min
+				- dumpPit: rndm 10 - 18 min
+				- extScale: rndm 4 - 9 min
+			- travel time between first, second, & third facilities: rndm 2-3 min
 
 	*/
 
@@ -88,8 +135,17 @@ const makeTruckObjs = (count) => {
 	//BUSHELS - between 1350 && 1440
 
 
-date = d3.timeParse("%A, %B %-d, %Y %I")("Tuesday, July 9, 2018 7");
-console.log(addMinutes(date, 15))
-console.log('// - - - - - //')
+//dummy date example
+// date = d3.timeParse("%A, %B %-d, %Y %I")("Tuesday, July 9, 2018 7");
+// console.log(addMinutes(date, 15))
+// console.log('// - - - - - //')
 
-// console.log(makeTruckObjs(1))
+//dummy-truck-making example
+let truckObjs = makeTruckObjs(1);
+console.log(truckObjs)
+let truckWithFacilities = sendThroughFacilities(truckObjs[0], ['probe', 'entScale', 'dumpPit', 'extScale'], "Tuesday, July 9, 2018 7")
+
+console.log('truckWithFacilities')
+console.log(truckWithFacilities)
+
+
