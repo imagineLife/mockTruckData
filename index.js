@@ -23,6 +23,12 @@ const makeRandomProduct = () => {
 const makeRandomBushelCount = (minMaxArr) => {
 	return Math.floor(Math.random()*(minMaxArr[1]-minMaxArr[0]+1)+minMaxArr[0]) 
 }
+
+const addMinutes = (startDate, minutes) => {
+	//	d3 time function
+	//	https://github.com/d3/d3-time#interval_offset
+    return d3.timeMinute.offset(startDate, minutes);
+}
 	/*
 		SAME truck NEEDS to be in Each location
 		location.forEach(makeThisTruckVisitThere)
@@ -33,20 +39,18 @@ const makeRandomBushelCount = (minMaxArr) => {
 			- product (random [YC, SB, Wh])
 			- bushels (random between 1350 && 1440)
 
-		2. Copy truck, 
-			make 4 new objects per truck
-			1 per location ([probe, entScale, dumpPit, extScale]). 
-			ADD:
-			- location name
-			- time IN loc ( random between 7 - 26 min) mins
-			- travel time to next stop 	// IF first 3 locations only
-			// - timestamp ENTERED location
-			// - timestamp LEFT location (enter + @)
+		2. Put truck through facility
+			FACILITY has 4 stops
+				probe
+				entScale
+				dumpPit
+				extScale
 
-		Connecting time between trucks & times
-		SAVE a 'global' timeList
-		LAST EMPTY:
-			- [probe, entScale, dumpPit, extScale]: time after location
+			NEEDS
+			- Start time @ first facility (ex 7 am on a tuesday july 9 2018)
+			- duration in each facilities (random between 4-25?)
+			- travel time between first,second, & third facilities
+
 
 	*/
 
@@ -74,6 +78,11 @@ const makeTruckObjs = (count) => {
 	return resArr;
 }
 
+date = d3.timeParse("%A, %B %-d, %Y %I")("Tuesday, July 9, 2018 7");
+console.log(date)
+console.log('// - - - - - //')
 
-console.log(makeTruckObjs(30))
-let dummyTrucks = makeTrucks(3)
+console.log(addMinutes(date, 15))
+console.log('// - - - - - //')
+
+// console.log(makeTruckObjs(1))
